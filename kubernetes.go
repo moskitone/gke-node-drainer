@@ -136,11 +136,11 @@ func (k *Kubernetes) DrainNode(name string, drainTimeout int) (err error) {
 		drainKubeSystem = false
 	}
 
+	fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name+",metadata.namespace!=kube-system")
 	if drainKubeSystem {
-		fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name)
-	} else {
-		fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name+",metadata.namespace!=kube-system")
+		fieldSelector = k8s.QueryParam("fieldSelector", "spec.nodeName="+name)
 	}
+
 	podList, err := k.Client.CoreV1().ListPods(context.Background(), k8s.AllNamespaces, fieldSelector)
 
 	if err != nil {
