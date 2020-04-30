@@ -22,6 +22,7 @@ type Kubernetes struct {
 type KubernetesClient interface {
 	DrainNode(string, int) error
 	DrainKubeDNSFromNode(string, int) error
+	DeleteNode(string) error
 	GetNode(string) (*apiv1.Node, error)
 	SetNodeAnnotation(string, string, string) error
 	SetUnschedulableState(string, bool) error
@@ -129,7 +130,7 @@ func filterOutPodByNode(podList []*apiv1.Pod, nodeName string) (output []*apiv1.
 // DrainNode delete every pods from a given node and wait that all pods are removed before it succeed
 // it also make sure we don't select DaemonSet because they are not subject to unschedulable state
 func (k *Kubernetes) DrainNode(name string, drainTimeout int) (err error) {
-	// Select all pods sitting on the node except the one from kube-system
+
 	var drainKubeSystem bool
 	drainKubeSystem, err = strconv.ParseBool(os.Getenv("DRAIN_KUBE_SYSTEM"))
 	if err != nil {
