@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/ericchiang/k8s"
@@ -130,7 +131,10 @@ func filterOutPodByNode(podList []*apiv1.Pod, nodeName string) (output []*apiv1.
 func (k *Kubernetes) DrainNode(name string, drainTimeout int) (err error) {
 	// Select all pods sitting on the node except the one from kube-system
 	var drainKubeSystem bool
-	drainKubeSystem = os.Getenv("DRAIN_KUBE_SYSTEM")
+	drainKubeSystem, err = strconv.ParseBool(os.Getenv("DRAIN_KUBE_SYSTEM"))
+	if err != nil {
+		drainKubeSystem = false
+	}
 
 	if drainKubeSystem {
 		fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name)
