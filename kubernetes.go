@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/ericchiang/k8s"
@@ -128,7 +129,14 @@ func filterOutPodByNode(podList []*apiv1.Pod, nodeName string) (output []*apiv1.
 // it also make sure we don't select DaemonSet because they are not subject to unschedulable state
 func (k *Kubernetes) DrainNode(name string, drainTimeout int) (err error) {
 	// Select all pods sitting on the node except the one from kube-system
-	fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name+",metadata.namespace!=kube-system")
+	var drainKubeSystem bool
+	drainKubeSystem = os.Getenv("DRAIN_KUBE_SYSTEM")
+
+	if drainKubeSystem {
+		fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name)
+	} else {
+		fieldSelector := k8s.QueryParam("fieldSelector", "spec.nodeName="+name+",metadata.namespace!=kube-system")
+	}
 	podList, err := k.Client.CoreV1().ListPods(context.Background(), k8s.AllNamespaces, fieldSelector)
 
 	if err != nil {
