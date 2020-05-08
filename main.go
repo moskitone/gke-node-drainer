@@ -11,7 +11,6 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/ericchiang/k8s"
-	"github.com/estafette/estafette-gke-preemptible-killer"
 )
 
 type Instance struct {
