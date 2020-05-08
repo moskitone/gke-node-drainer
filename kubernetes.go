@@ -22,7 +22,6 @@ type Kubernetes struct {
 type KubernetesClient interface {
 	DrainNode(string, int) error
 	DrainKubeDNSFromNode(string, int) error
-	DeleteNode(string) error
 	GetNode(string) (*apiv1.Node, error)
 	SetNodeAnnotation(string, string, string) error
 	SetUnschedulableState(string, bool) error

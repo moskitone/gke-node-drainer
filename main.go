@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -140,36 +139,6 @@ func pullMsgsSettings(client *pubsub.Client, subName string) error {
 			log.Error().Err(err).Msgf("Error draining kube-dns from kubernetes node")
 			return
 		}
-
-		var removeNodes bool
-		removeNodes, err = strconv.ParseBool(os.Getenv("REMOVE_NODES"))
-		if err != nil {
-			removeNodes = false
-		}
-		if removeNodes {
-			// delete node from kubernetes cluster
-			err = kubernetes.DeleteNode(*node.Metadata.Name)
-
-			if err != nil {
-				log.Error().
-					Err(err).
-					Str("host", *node.Metadata.Name).
-					Msg("Error deleting node")
-				return
-			}
-
-			var gcloud GCloudClient
-			gcloud, err = NewGCloudClient(projectID, zone)
-
-			if err != nil {
-				log.Error().
-					Err(err).
-					Str("host", *node.Metadata.Name).
-					Msg("Error creating GCloud client")
-				return
-			}
-		}
-
 	})
 	if err != nil {
 		return err
